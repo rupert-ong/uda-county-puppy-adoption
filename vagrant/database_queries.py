@@ -1,4 +1,6 @@
-from sqlalchemy import create_engine
+import datetime
+
+from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 
 from database_setup import Base, Shelter, Puppy
@@ -21,4 +23,24 @@ def sortAscendingName():
 
     print "\n"
 
-sortAscendingName()
+
+def sortLessthanSixMonthsOld():
+    """Query all puppies that are less than six months old, sorted youngest to oldest"""
+    today = datetime.date.today()
+    six_months_ago = today - datetime.timedelta(180)
+
+    puppies = session.query(Puppy).filter(Puppy.dateOfBirth > six_months_ago).order_by(desc(Puppy.dateOfBirth)).all()
+
+    print "Sort Puppies less than 6 months old, youngest to oldest: \n"
+
+    for puppy in puppies:
+        print(puppy.id, puppy.name, puppy.dateOfBirth)
+
+    print "\n"
+
+
+def executeQueries():
+    #sortAscendingName()
+    sortLessthanSixMonthsOld()
+
+executeQueries()
