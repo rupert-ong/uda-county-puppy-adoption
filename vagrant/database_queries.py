@@ -39,8 +39,21 @@ def sortLessthanSixMonthsOld():
     print "\n"
 
 
+def sortAscendingWeight():
+    """Query all puppies and return by ascending weight"""
+    puppies = session.query(Puppy).order_by(Puppy.weight).all()
+
+    print "Sort Puppies by weight ascending \n"
+
+    for puppy in puppies:
+        print(puppy.id, puppy.name, puppy.weight)
+
+    print "\n"
+
+
 def executeQueries():
     #sortAscendingName()
-    sortLessthanSixMonthsOld()
+    # sortLessthanSixMonthsOld()
+    sortAscendingWeight()
 
 executeQueries()
