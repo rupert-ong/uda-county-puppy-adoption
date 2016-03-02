@@ -51,9 +51,23 @@ def sortAscendingWeight():
     print "\n"
 
 
+def groupByShelter():
+    """Query all puppies and group by shelter name"""
+    puppies = session.query(Puppy, Shelter).filter(Puppy.shelter_id == Shelter.id).order_by(Shelter.name, Puppy.name).all()
+
+    print "Sort Puppies by shelter name ascending \n"
+
+    for puppy in puppies:
+        ## Each puppy returns a tuple of 2 database objects: (Puppy, Shelter)
+        print(puppy[0].name, puppy[0].shelter_id, puppy[1].name, puppy[1].id)
+
+    print "\n"
+
+
 def executeQueries():
-    #sortAscendingName()
-    # sortLessthanSixMonthsOld()
+    sortAscendingName()
+    sortLessthanSixMonthsOld()
     sortAscendingWeight()
+    groupByShelter()
 
 executeQueries()
