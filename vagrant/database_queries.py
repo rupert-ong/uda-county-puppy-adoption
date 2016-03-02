@@ -29,7 +29,8 @@ def sortLessthanSixMonthsOld():
     today = datetime.date.today()
     six_months_ago = today - datetime.timedelta(180)
 
-    puppies = session.query(Puppy).filter(Puppy.dateOfBirth > six_months_ago).order_by(desc(Puppy.dateOfBirth)).all()
+    puppies = session.query(Puppy).filter(Puppy.dateOfBirth > six_months_ago).\
+        order_by(desc(Puppy.dateOfBirth)).all()
 
     print "Sort Puppies less than 6 months old, youngest to oldest: \n"
 
@@ -53,13 +54,14 @@ def sortAscendingWeight():
 
 def groupByShelter():
     """Query all puppies and group by shelter name"""
-    puppies = session.query(Puppy, Shelter).filter(Puppy.shelter_id == Shelter.id).order_by(Shelter.name, Puppy.name).all()
+    puppies = session.query(
+        Puppy.name.label('puppy_name'), Shelter.name.label('shelter_name')).\
+        filter(Puppy.shelter_id == Shelter.id).order_by(Shelter.name, Puppy.name)
 
     print "Sort Puppies by shelter name ascending \n"
 
     for puppy in puppies:
-        ## Each puppy returns a tuple of 2 database objects: (Puppy, Shelter)
-        print(puppy[0].name, puppy[0].shelter_id, puppy[1].name, puppy[1].id)
+        print(puppy.puppy_name, puppy.shelter_name)
 
     print "\n"
 
