@@ -3,7 +3,7 @@ import datetime
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 
-from database_setup import Base, Shelter, Puppy
+from database_setup import Base, Shelter, Puppy, PuppyProfile
 
 engine = create_engine('sqlite:///puppyshelter.db', echo=True)
 Base.metadata.bind = engine
@@ -66,10 +66,29 @@ def groupByShelter():
     print "\n"
 
 
+def getPuppyAndProfile():
+    """Using the one-to-one relationship, get puppy name, gender, image,
+    description, special needs from the puppy and puppy_profile tables"""
+    puppies = session.query(
+        Puppy.name, Puppy.gender, PuppyProfile.image, PuppyProfile.description,
+        PuppyProfile.special_needs).\
+        filter(Puppy.id == PuppyProfile.puppy_id).all()
+
+    print "Get Puppies and correlating Puppy Profiles (One-to-One)"
+
+    for puppy in puppies:
+        print(
+            puppy.name, puppy.gender, puppy.image, puppy.description,
+            puppy.special_needs)
+
+    print "\n"
+
+
 def executeQueries():
-    sortAscendingName()
-    sortLessthanSixMonthsOld()
-    sortAscendingWeight()
-    groupByShelter()
+    # sortAscendingName()
+    # sortLessthanSixMonthsOld()
+    # sortAscendingWeight()
+    # groupByShelter()
+    getPuppyAndProfile()
 
 executeQueries()
