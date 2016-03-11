@@ -1,10 +1,15 @@
 # Configuration code
-from sqlalchemy import Column, ForeignKey, Integer, String, Date, Numeric
+from sqlalchemy import Column, create_engine, ForeignKey, Integer, String, Date, Numeric, Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from sqlalchemy import create_engine
 
 Base = declarative_base()
+
+# Associative Table for many-to-many relationship (Puppy and Adopter)
+puppies_adopters_table = Table(
+    'puppies_adopters', Base.metadata,
+    Column('puppy_id', ForeignKey('puppy.id'), primary_key=True),
+    Column('adopter_id', ForeignKey('adopter.id'), primary_key=True))
 
 
 # Class Code
@@ -35,6 +40,10 @@ class Puppy(Base):
     profile = relationship(
         "PuppyProfile", uselist=False, back_populates="puppy")
 
+    # Many-to-Many relationship with Adopter(.puppies)
+    adopters = relationship(
+        "Adopter", secondary=puppies_adopters_table, back_populates='puppies')
+
 
 class PuppyProfile(Base):
     __tablename__ = 'puppy_profile'
@@ -45,6 +54,21 @@ class PuppyProfile(Base):
 
     puppy_id = Column(Integer, ForeignKey('puppy.id'))
     puppy = relationship("Puppy", back_populates="profile")
+
+
+class Adopter(Base):
+    __tablename__ = 'adopter'
+    id = Column(Integer, primary_key=True)
+    first_name = Column(String, nullable=False)
+    last_name = Column(String, nullable=False)
+
+    # Many-to-Many relationship with Puppy(.adopters)
+    puppies = relationship(
+        'Puppy', secondary=puppies_adopters_table, back_populates='adopters')
+
+    def __init__(self, first_name, last_name):
+        self.first_name = first_name
+        self.last_name = last_name
 
 
 # Determine which DB to communicate with...
