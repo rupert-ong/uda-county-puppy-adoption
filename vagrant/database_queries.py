@@ -67,10 +67,10 @@ def groupByShelter():
 
 
 def getPuppyAndProfile():
-    """Using the one-to-one relationship, get puppy name, gender, image,
+    """Using the one-to-one relationship, get puppy name, gender, picture,
     description, special needs from the puppy and puppy_profile tables"""
     puppies = session.query(
-        Puppy.name, Puppy.gender, PuppyProfile.image, PuppyProfile.description,
+        Puppy.name, Puppy.gender, PuppyProfile.picture, PuppyProfile.description,
         PuppyProfile.special_needs).\
         filter(Puppy.id == PuppyProfile.puppy_id).all()
 
@@ -78,7 +78,7 @@ def getPuppyAndProfile():
 
     for puppy in puppies:
         print(
-            puppy.name, puppy.gender, puppy.image, puppy.description,
+            puppy.name, puppy.gender, puppy.picture, puppy.description,
             puppy.special_needs)
 
     print "\n"
