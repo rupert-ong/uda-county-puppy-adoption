@@ -1,13 +1,13 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from database_setup import Base, Shelter, Puppy, PuppyProfile
+from database_setup import Base, Shelter, Puppy, PuppyProfile, Adopter
 #from flask.ext.sqlalchemy import SQLAlchemy
 from random import randint
 import datetime
 import random
 
-engine = create_engine('sqlite:///puppyshelter.db')
+engine = create_engine('sqlite:///puppyshelter.db', echo=True)
 
 Base.metadata.bind = engine
 
@@ -115,4 +115,14 @@ def CreatePuppiesAndProfiles():
 		session.add_all([new_puppy, new_profile])
 		session.commit()
 
+
+# Create Adopters (many-to-many relationship with Puppy)
+def CreateAdopters():
+	james_smith = Adopter("James", "Smith")
+	maggie_smith = Adopter("Maggie", "Smith")
+	crazy_dog_lady = Adopter("Crazy", "Lady")
+	session.add_all([james_smith, maggie_smith, crazy_dog_lady])
+	session.commit()
+
 CreatePuppiesAndProfiles()
+CreateAdopters()

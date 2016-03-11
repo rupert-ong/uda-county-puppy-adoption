@@ -3,7 +3,7 @@ import datetime
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 
-from database_setup import Base, Shelter, Puppy, PuppyProfile
+from database_setup import Base, Shelter, Puppy, PuppyProfile, Adopter
 
 engine = create_engine('sqlite:///puppyshelter.db', echo=True)
 Base.metadata.bind = engine
@@ -84,11 +84,64 @@ def getPuppyAndProfile():
     print "\n"
 
 
+def setupManyToMany():
+    """Setup many-to-many relationship between Adopter(s) and Pupp(ies)"""
+    # Puppies: "Bailey", "Max", "Charlie", "Buddy", "Rocky", "Jake", "Jack"
+    puppy_bailey = session.query(Puppy).filter_by(name='Bailey').first()
+    puppy_max = session.query(Puppy).filter_by(name='Max').one()
+    puppy_charlie = session.query(Puppy).filter_by(name='Charlie').one()
+    puppy_buddy = session.query(Puppy).filter_by(name='Buddy').one()
+    puppy_rocky = session.query(Puppy).filter_by(name='Rocky').one()
+    puppy_jake = session.query(Puppy).filter_by(name='Jake').one()
+    puppy_jack = session.query(Puppy).filter_by(name='Jack').one()
+
+    adopter_james_smith = session.query(Adopter).filter_by(first_name='James').one()
+    adopter_maggie_smith = session.query(Adopter).filter_by(first_name='Maggie').one()
+    adopter_crazy_lady = session.query(Adopter).filter_by(first_name='Crazy').one()
+
+    # Add puppy to 2 adopters (same family)
+    puppy_bailey.adopters.append(adopter_james_smith)
+    puppy_bailey.adopters.append(adopter_maggie_smith)
+
+    # Add several puppies to 1 adopter
+    adopter_crazy_lady.puppies.append(puppy_max)
+    adopter_crazy_lady.puppies.append(puppy_charlie)
+    adopter_crazy_lady.puppies.append(puppy_buddy)
+    adopter_crazy_lady.puppies.append(puppy_rocky)
+    adopter_crazy_lady.puppies.append(puppy_jake)
+    adopter_crazy_lady.puppies.append(puppy_jack)
+
+    # Check many-to-many relationships
+    print "Get Adopters of Bailey (Many-to-Many):"
+
+    for a in puppy_bailey.adopters:
+        print(a.first_name, a.last_name)
+
+    print "\n"
+
+    print "Get Puppies of Crazy Lady (Many-to-Many):"
+    for p in adopter_crazy_lady.puppies:
+        print(p.name)
+
+    print "\n"
+
+    # Using the any operator
+    print "Get Puppies of Crazy Lady (Many-to-Many) Using any() operator:"
+    crazy_query = session.query(Puppy).\
+        filter(Puppy.adopters.any(first_name='Crazy')).all()
+
+    for p in crazy_query:
+        print(p, p.name)
+
+    print "\n"
+
+
 def executeQueries():
     # sortAscendingName()
     # sortLessthanSixMonthsOld()
     # sortAscendingWeight()
     # groupByShelter()
-    getPuppyAndProfile()
+    # getPuppyAndProfile()
+    setupManyToMany()
 
 executeQueries()
