@@ -25,10 +25,26 @@ class Puppy(Base):
     name = Column(String(80), nullable=False)
     gender = Column(String(6), nullable=False)
     dateOfBirth = Column(Date)
-    picture = Column(String)
+    # picture = Column(String)
     weight = Column(Numeric(10))
+
     shelter_id = Column(Integer, ForeignKey('shelter.id'))
     shelter = relationship(Shelter)
+
+    # One-to-One relationship with PuppyProfile(.puppy)
+    profile = relationship(
+        "PuppyProfile", uselist=False, back_populates="puppy")
+
+
+class PuppyProfile(Base):
+    __tablename__ = 'puppy_profile'
+    id = Column(Integer, primary_key=True)
+    picture = Column(String)
+    description = Column(String)
+    special_needs = Column(String)
+
+    puppy_id = Column(Integer, ForeignKey('puppy.id'))
+    puppy = relationship("Puppy", back_populates="profile")
 
 
 # Determine which DB to communicate with...
