@@ -41,8 +41,20 @@ female_names = ['Bella', 'Lucy', 'Molly', 'Daisy', 'Maggie', 'Sophie', 'Sadie', 
 
 puppy_images = ["http://pixabay.com/get/da0c8c7e4aa09ba3a353/1433170694/dog-785193_1280.jpg?direct", "http://pixabay.com/get/6540c0052781e8d21783/1433170742/dog-280332_1280.jpg?direct", "http://pixabay.com/get/8f62ce526ed56cd16e57/1433170768/pug-690566_1280.jpg?direct", "http://pixabay.com/get/be6ebb661e44f929e04e/1433170798/pet-423398_1280.jpg?direct", "http://pixabay.com/static/uploads/photo/2010/12/13/10/20/beagle-puppy-2681_640.jpg", "http://pixabay.com/get/4b1799cb4e3f03684b69/1433170894/dog-589002_1280.jpg?direct", "http://pixabay.com/get/3157a0395f9959b7a000/1433170921/puppy-384647_1280.jpg?direct", "http://pixabay.com/get/2a11ff73f38324166ac6/1433170950/puppy-742620_1280.jpg?direct", "http://pixabay.com/get/7dcd78e779f8110ca876/1433170979/dog-710013_1280.jpg?direct", "http://pixabay.com/get/31d494632fa1c64a7225/1433171005/dog-668940_1280.jpg?direct"]
 
+puppy_descriptions = [
+	"Easy going dog with a good temperament.", "Feisty but friendly.",
+	"Great with children.", "Whiny and annoying.", "Large dog with a big heart.",
+	"Playful daschund who takes on more than it can chew.", "Small chihuahua", 
+	"Exciting Boxer who has lots of love to give", "Crazy Terrier who will destroy your furniture.",
+	"Dalmation who loves to walk!"]
 
-#This method will make a random age for each puppy between 0-18 months(approx.) old from the day the algorithm was run.
+puppy_special_needs = [
+	"Lots of room to walk", "Plenty of exercise", "Restricted diet",
+	"Large bed and plenty of food", "Veterinary shots daily", "None"]
+
+
+# This method will make a random age for each puppy between 0-18 months(approx.)
+# old from the day the algorithm was run.
 def CreateRandomAge():
 	today = datetime.date.today()
 	days_old = randint(0, 540)
@@ -50,17 +62,57 @@ def CreateRandomAge():
 	return birthday
 
 
-#This method will create a random weight between 1.0-40.0 pounds (or whatever unit of measure you prefer)
+# This method will create a random weight between 1.0-40.0 pounds (or whatever
+# unit of measure you prefer)
 def CreateRandomWeight():
 	return random.uniform(1.0, 40.0)
 
 
-for i, x in enumerate(male_names):
-	new_puppy = Puppy(name=x, gender="male", dateOfBirth=CreateRandomAge(), picture=random.choice(puppy_images), shelter_id=randint(1, 5), weight=CreateRandomWeight())
-	session.add(new_puppy)
-	session.commit()
+# Create Puppies (First Way)
+def CreatePuppies():
+	for i, x in enumerate(male_names):
+		new_puppy = Puppy(
+			name=x, gender="male", dateOfBirth=CreateRandomAge(),
+			picture=random.choice(puppy_images), shelter_id=randint(1, 5),
+			weight=CreateRandomWeight())
+		session.add(new_puppy)
+		session.commit()
 
-for i, x in enumerate(female_names):
-	new_puppy = Puppy(name=x, gender="female", dateOfBirth=CreateRandomAge(), picture=random.choice(puppy_images), shelter_id=randint(1,5), weight=CreateRandomWeight())
-	session.add(new_puppy)
-	session.commit()
+	for i, x in enumerate(female_names):
+		new_puppy = Puppy(
+			name=x, gender="female", dateOfBirth=CreateRandomAge(), 
+			picture=random.choice(puppy_images), shelter_id=randint(1,5),
+			weight=CreateRandomWeight())
+		session.add(new_puppy)
+		session.commit()
+
+
+# Create Puppy and PuppyProfile instances (one-to-one relationship)
+def CreatePuppiesAndProfiles():
+	for i, x in enumerate(male_names, start=1):
+		new_puppy = Puppy(
+			name=x, gender="male", dateOfBirth=CreateRandomAge(),
+			shelter_id=randint(1, 5), weight=CreateRandomWeight())
+		new_profile = PuppyProfile(
+			picture=random.choice(puppy_images),
+			description=random.choice(puppy_descriptions),
+			special_needs=random.choice(puppy_special_needs),
+			puppy_id=i)
+
+		session.add_all([new_puppy, new_profile])
+		session.commit()
+
+	for i, x in enumerate(female_names, start=50):
+		new_puppy = Puppy(
+			name=x, gender="female", dateOfBirth=CreateRandomAge(), 
+			shelter_id=randint(1,5), weight=CreateRandomWeight())
+		new_profile = PuppyProfile(
+			picture=random.choice(puppy_images),
+			description=random.choice(puppy_descriptions),
+			special_needs=random.choice(puppy_special_needs),
+			puppy_id=i)
+
+		session.add_all([new_puppy, new_profile])
+		session.commit()
+
+CreatePuppiesAndProfiles()
