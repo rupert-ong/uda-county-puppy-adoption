@@ -21,6 +21,7 @@ Here's what you need to do to view this project:
 2. Within Terminal (Mac), navigate to the vagrant folder and launch the Vagrant VM by running the command `vagrant up`.
 3. SSH into the running Vagrant machine `vagrant ssh`. 
 4. Execute `cd /vagrant` to change directory.
+5. Run `python database_setup.py`, then `python puppypopulator.py` and `python database_queries` to setup the database, populate it and run the related queries.
 
 
 ### What's included
@@ -31,6 +32,7 @@ Within the downloaded files, this is the relevant structure:
 uda-county-puppy-adoption/
 └── vagrant/
     ├── Vagrantfile
+    ├── database_queries.py
     ├── database_setup.py
     ├── puppypopulator.py
     └── pg_config.sh
