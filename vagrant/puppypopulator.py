@@ -17,19 +17,19 @@ session = DBSession()
 
 
 #Add Shelters
-shelter1 = Shelter(name="Oakland Animal Services", address="1101 29th Ave", city="Oakland", state="California", zipCode="94601", website="oaklandanimalservices.org", current_occupancy=0, maximum_capacity=0)
+shelter1 = Shelter(name="Oakland Animal Services", address="1101 29th Ave", city="Oakland", state="California", zipCode="94601", website="oaklandanimalservices.org", current_occupancy=0, maximum_capacity=50)
 session.add(shelter1)
 
-shelter2 = Shelter(name="San Francisco SPCA Mission Adoption Center", address="250 Florida St", city="San Francisco", state="California", zipCode="94103", website="sfspca.org", current_occupancy=0, maximum_capacity=0)
+shelter2 = Shelter(name="San Francisco SPCA Mission Adoption Center", address="250 Florida St", city="San Francisco", state="California", zipCode="94103", website="sfspca.org", current_occupancy=0, maximum_capacity=15)
 session.add(shelter2)
 
-shelter3 = Shelter(name="Wonder Dog Rescue", address="2926 16th Street", city="San Francisco", state="California", zipCode="94103", website="http://wonderdogrescue.org", current_occupancy=0, maximum_capacity=0)
+shelter3 = Shelter(name="Wonder Dog Rescue", address="2926 16th Street", city="San Francisco", state="California", zipCode="94103", website="http://wonderdogrescue.org", current_occupancy=0, maximum_capacity=20)
 session.add(shelter3)
 
-shelter4 = Shelter(name="Humane Society of Alameda", address="PO Box 1571", city="Alameda", state="California", zipCode="94501", website="hsalameda.org", current_occupancy=0, maximum_capacity=0)
+shelter4 = Shelter(name="Humane Society of Alameda", address="PO Box 1571", city="Alameda", state="California", zipCode="94501", website="hsalameda.org", current_occupancy=0, maximum_capacity=15)
 session.add(shelter4)
 
-shelter5 = Shelter(name="Palo Alto Humane Society", address="1149 Chestnut St.", city="Menlo Park", state="California", zipCode="94025", website="paloaltohumane.org", current_occupancy=0, maximum_capacity=0)
+shelter5 = Shelter(name="Palo Alto Humane Society", address="1149 Chestnut St.", city="Menlo Park", state="California", zipCode="94025", website="paloaltohumane.org", current_occupancy=0, maximum_capacity=20)
 session.add(shelter5)
 
 
@@ -81,39 +81,42 @@ def CreatePuppies():
 	for i, x in enumerate(female_names):
 		new_puppy = Puppy(
 			name=x, gender="female", dateOfBirth=CreateRandomAge(), 
-			picture=random.choice(puppy_images), shelter_id=randint(1,5),
+			picture=random.choice(puppy_images), shelter_id=randint(1, 5),
 			weight=CreateRandomWeight())
 		session.add(new_puppy)
 		session.commit()
 
 
-# Create Puppy and PuppyProfile instances (one-to-one relationship)
-def CreatePuppiesAndProfiles():
-	for i, x in enumerate(male_names, start=1):
+# Convenience method for Puppy, PuppyProfile population
+def EnumeratePuppies(names_list, start_num=1, gender_type="male"):
+	for i, x in enumerate(names_list, start=start_num):
+		# Get shelter_id and check if current_occupancy is less than
+		# maximum_capacity
+		random_shelter_id = randint(1, 5)
+		shelter = session.query(Shelter).get(random_shelter_id)
+
+		while shelter.current_occupancy >= shelter.maximum_capacity:
+			random_shelter_id = randint(1, 5)
+			shelter = session.query(Shelter).get(random_shelter_id)
+
 		new_puppy = Puppy(
-			name=x, gender="male", dateOfBirth=CreateRandomAge(),
+			name=x, gender=gender_type, dateOfBirth=CreateRandomAge(),
 			shelter_id=randint(1, 5), weight=CreateRandomWeight())
 		new_profile = PuppyProfile(
 			picture=random.choice(puppy_images),
 			description=random.choice(puppy_descriptions),
 			special_needs=random.choice(puppy_special_needs),
 			puppy_id=i)
+		shelter.current_occupancy = shelter.current_occupancy + 1
 
 		session.add_all([new_puppy, new_profile])
 		session.commit()
 
-	for i, x in enumerate(female_names, start=50):
-		new_puppy = Puppy(
-			name=x, gender="female", dateOfBirth=CreateRandomAge(), 
-			shelter_id=randint(1,5), weight=CreateRandomWeight())
-		new_profile = PuppyProfile(
-			picture=random.choice(puppy_images),
-			description=random.choice(puppy_descriptions),
-			special_needs=random.choice(puppy_special_needs),
-			puppy_id=i)
 
-		session.add_all([new_puppy, new_profile])
-		session.commit()
+# Create Puppy and PuppyProfile instances (one-to-one relationship)
+def CreatePuppiesAndProfiles():
+	EnumeratePuppies(male_names)
+	EnumeratePuppies(female_names, 50, "female")
 
 
 # Create Adopters (many-to-many relationship with Puppy)
