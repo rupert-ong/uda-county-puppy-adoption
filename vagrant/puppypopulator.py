@@ -17,7 +17,7 @@ session = DBSession()
 
 
 #Add Shelters
-shelter1 = Shelter(name="Oakland Animal Services", address="1101 29th Ave", city="Oakland", state="California", zipCode="94601", website="oaklandanimalservices.org", current_occupancy=0, maximum_capacity=50)
+shelter1 = Shelter(name="Oakland Animal Services", address="1101 29th Ave", city="Oakland", state="California", zipCode="94601", website="oaklandanimalservices.org", current_occupancy=0, maximum_capacity=31)
 session.add(shelter1)
 
 shelter2 = Shelter(name="San Francisco SPCA Mission Adoption Center", address="250 Florida St", city="San Francisco", state="California", zipCode="94103", website="sfspca.org", current_occupancy=0, maximum_capacity=15)
@@ -95,9 +95,19 @@ def EnumeratePuppies(names_list, start_num=1, gender_type="male"):
 		random_shelter_id = randint(1, 5)
 		shelter = session.query(Shelter).get(random_shelter_id)
 
-		while shelter.current_occupancy >= shelter.maximum_capacity:
-			random_shelter_id = randint(1, 5)
-			shelter = session.query(Shelter).get(random_shelter_id)
+		if(shelter.current_occupancy >= shelter.maximum_capacity):
+			print(shelter.name + " is full. Trying another shelter...")
+
+			shelter = session.query(Shelter).\
+				filter(Shelter.current_occupancy < Shelter.maximum_capacity).\
+				order_by(Shelter.current_occupancy).first()
+
+			if(shelter is None):
+				print "All shelters are full. Please open more shelters."
+				break
+
+		if(shelter is None):
+			return False
 
 		new_puppy = Puppy(
 			name=x, gender=gender_type, dateOfBirth=CreateRandomAge(),
