@@ -164,11 +164,11 @@ def checkInPuppy(puppy_name, puppy_gender, puppy_dob, puppy_weight, shelter_id):
     if(shelter.current_occupancy >= shelter.maximum_capacity):
         print shelter.name + " is full. Trying another shelter..."
 
-        shelter_id = session.query(Shelter).\
+        shelter = session.query(Shelter).\
             filter(Shelter.current_occupancy < Shelter.maximum_capacity).\
             order_by(Shelter.current_occupancy).first()
 
-        if(shelter_id is None):
+        if(shelter is None):
             print "All shelters are full. Please open more shelters."
             return False
 
@@ -186,7 +186,7 @@ def checkInPuppy(puppy_name, puppy_gender, puppy_dob, puppy_weight, shelter_id):
 
     shelter.current_occupancy = shelter.current_occupancy + 1
 
-    session.add_all(new_profile)
+    session.add(new_profile)
     session.commit()
 
     shelter = session.query(Shelter).get(shelter_id)
@@ -195,6 +195,10 @@ def checkInPuppy(puppy_name, puppy_gender, puppy_dob, puppy_weight, shelter_id):
 
 def checkInPuppies():
     """Scenarios to check current_occupancy and maximum_capcity of shelters"""
+
+    print "Check in a dog. Should be checked in the next available shelter."
+    checkInPuppy("Rexford", "male", CreateRandomAge(), CreateRandomWeight(), 2)
+    print "\n"
 
     print "Check in a dog in an already full facility"
     checkInPuppy("Test1", "male", CreateRandomAge(), CreateRandomWeight(), 2)

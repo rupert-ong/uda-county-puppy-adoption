@@ -7,7 +7,7 @@ from random import randint
 import datetime
 import random
 
-engine = create_engine('sqlite:///puppyshelter.db', echo=True)
+engine = create_engine('sqlite:///puppyshelter.db')
 
 Base.metadata.bind = engine
 
@@ -96,7 +96,8 @@ def EnumeratePuppies(names_list, start_num=1, gender_type="male"):
 		shelter = session.query(Shelter).get(random_shelter_id)
 
 		if(shelter.current_occupancy >= shelter.maximum_capacity):
-			print(shelter.name + " is full. Trying another shelter...")
+			print("For %s, %s is full. Trying another shelter..." %
+				(x, shelter.name))
 
 			shelter = session.query(Shelter).\
 				filter(Shelter.current_occupancy < Shelter.maximum_capacity).\
