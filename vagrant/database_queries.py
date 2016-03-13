@@ -158,28 +158,39 @@ def CreateRandomWeight():
 
 
 def checkInPuppy(puppy_name, puppy_gender, puppy_dob, puppy_weight, shelter_id):
+    """Check in puppy only if a shelter has vacancy """
     shelter = session.query(Shelter).get(shelter_id)
 
     if(shelter.current_occupancy >= shelter.maximum_capacity):
-        print "Sorry, but " + shelter.name + " is full. "
-        "Please try another shelter"
-    else:
-        new_puppy = Puppy(
-            name=puppy_name, gender=puppy_gender, dateOfBirth=puppy_dob,
-            shelter_id=shelter_id, weight=puppy_weight)
-        session.add(new_puppy)
-        session.commit()
+        print shelter.name + " is full. Trying another shelter..."
 
-        new_profile = PuppyProfile(
-            picture="No image",
-            description="No description",
-            special_needs="No needs",
-            puppy_id=new_puppy.id)
+        shelter_id = session.query(Shelter).\
+            filter(Shelter.current_occupancy < Shelter.maximum_capacity).\
+            order_by(Shelter.current_occupancy).first()
 
-        shelter.current_occupancy = shelter.current_occupancy + 1
+        if(shelter_id is None):
+            print "All shelters are full. Please open more shelters."
+            return False
 
-        session.add_all(new_profile)
-        session.commit()
+    new_puppy = Puppy(
+        name=puppy_name, gender=puppy_gender, dateOfBirth=puppy_dob,
+        shelter_id=shelter_id, weight=puppy_weight)
+    session.add(new_puppy)
+    session.commit()
+
+    new_profile = PuppyProfile(
+        picture="No image",
+        description="No description",
+        special_needs="No needs",
+        puppy_id=new_puppy.id)
+
+    shelter.current_occupancy = shelter.current_occupancy + 1
+
+    session.add_all(new_profile)
+    session.commit()
+
+    shelter = session.query(Shelter).get(shelter_id)
+    print(new_puppy.name + " has been placed in " + shelter.name)
 
 
 def checkInPuppies():
