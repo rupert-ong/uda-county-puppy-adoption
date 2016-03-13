@@ -1,7 +1,10 @@
 import datetime
+import random
+from random import randint
 
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql import exists
 
 from database_setup import Base, Shelter, Puppy, PuppyProfile, Adopter
 
@@ -70,8 +73,8 @@ def getPuppyAndProfile():
     """Using the one-to-one relationship, get puppy name, gender, picture,
     description, special needs from the puppy and puppy_profile tables"""
     puppies = session.query(
-        Puppy.name, Puppy.gender, PuppyProfile.picture, PuppyProfile.description,
-        PuppyProfile.special_needs).\
+        Puppy.name, Puppy.gender, PuppyProfile.picture,
+        PuppyProfile.description, PuppyProfile.special_needs).\
         filter(Puppy.id == PuppyProfile.puppy_id).all()
 
     print "Get Puppies and correlating Puppy Profiles (One-to-One)"
@@ -95,9 +98,12 @@ def setupManyToMany():
     puppy_jake = session.query(Puppy).filter_by(name='Jake').one()
     puppy_jack = session.query(Puppy).filter_by(name='Jack').one()
 
-    adopter_james_smith = session.query(Adopter).filter_by(first_name='James').one()
-    adopter_maggie_smith = session.query(Adopter).filter_by(first_name='Maggie').one()
-    adopter_crazy_lady = session.query(Adopter).filter_by(first_name='Crazy').one()
+    adopter_james_smith = session.query(Adopter).\
+        filter_by(first_name='James').one()
+    adopter_maggie_smith = session.query(Adopter).\
+        filter_by(first_name='Maggie').one()
+    adopter_crazy_lady = session.query(Adopter).\
+        filter_by(first_name='Crazy').one()
 
     # Add puppy to 2 adopters (same family)
     puppy_bailey.adopters.append(adopter_james_smith)
@@ -136,12 +142,62 @@ def setupManyToMany():
     print "\n"
 
 
+# This method will make a random age for each puppy between 0-18 months(approx.)
+# old from the day the algorithm was run.
+def CreateRandomAge():
+    today = datetime.date.today()
+    days_old = randint(0, 540)
+    birthday = today - datetime.timedelta(days=days_old)
+    return birthday
+
+
+# This method will create a random weight between 1.0-40.0 pounds (or whatever
+# unit of measure you prefer)
+def CreateRandomWeight():
+    return random.uniform(1.0, 40.0)
+
+
+def checkInPuppy(puppy_name, puppy_gender, puppy_dob, puppy_weight, shelter_id):
+    shelter = session.query(Shelter).get(shelter_id)
+
+    if(shelter.current_occupancy >= shelter.maximum_capacity):
+        print "Sorry, but " + shelter.name + " is full. "
+        "Please try another shelter"
+    else:
+        new_puppy = Puppy(
+            name=puppy_name, gender=puppy_gender, dateOfBirth=puppy_dob,
+            shelter_id=shelter_id, weight=puppy_weight)
+        session.add(new_puppy)
+        session.commit()
+
+        new_profile = PuppyProfile(
+            picture="No image",
+            description="No description",
+            special_needs="No needs",
+            puppy_id=new_puppy.id)
+
+        shelter.current_occupancy = shelter.current_occupancy + 1
+
+        session.add_all(new_profile)
+        session.commit()
+
+
+def checkInPuppies():
+    """Scenarios to check current_occupancy and maximum_capcity of shelters"""
+
+    print "Check in a dog in an already full facility"
+    checkInPuppy("Test1", "male", CreateRandomAge(), CreateRandomWeight(), 2)
+    print session.query(exists().where(Puppy.name == "Test1")).scalar()  # False
+    print "\n"
+
+
 def executeQueries():
     # sortAscendingName()
     # sortLessthanSixMonthsOld()
     # sortAscendingWeight()
     # groupByShelter()
     # getPuppyAndProfile()
-    setupManyToMany()
+    # setupManyToMany()
+    checkInPuppies()
 
 executeQueries()
