@@ -142,18 +142,17 @@ def setupManyToMany():
     print "\n"
 
 
-# This method will make a random age for each puppy between 0-18 months(approx.)
-# old from the day the algorithm was run.
-def CreateRandomAge():
+def createRandomAge():
+    """ Make a random age for each puppy between 0-18 months(approx.)
+        old from the day the algorithm was run."""
     today = datetime.date.today()
     days_old = randint(0, 540)
     birthday = today - datetime.timedelta(days=days_old)
     return birthday
 
 
-# This method will create a random weight between 1.0-40.0 pounds (or whatever
-# unit of measure you prefer)
-def CreateRandomWeight():
+def createRandomWeight():
+    """Create a random weight between 1.0-40.0 pounds"""
     return random.uniform(1.0, 40.0)
 
 
@@ -197,13 +196,7 @@ def checkInPuppies():
     """Scenarios to check current_occupancy and maximum_capcity of shelters"""
 
     print "Check in a dog. Should be checked in the next available shelter."
-    checkInPuppy("Rexford", "male", CreateRandomAge(), CreateRandomWeight(), 2)
-    print "\n"
-
-    print "Check in a dog in an already full facility"
-    checkInPuppy("Test1", "male", CreateRandomAge(), CreateRandomWeight(), 2)
-    print session.query(exists().where(Puppy.name == "Test1")).scalar()  # False
-    print "\n"
+    checkInPuppy("Rexford", "male", c
 
 
 def executeQueries():
