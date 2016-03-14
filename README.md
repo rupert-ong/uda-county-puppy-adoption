@@ -26,7 +26,7 @@ Here's what you need to do to view this project:
 7. Finally, run `python database_queries.py` to run the related queries. Be sure to comment and uncomment methods as needed.
 
 
-### What's included
+## What's included
 
 Within the downloaded files, this is the relevant structure:
 
