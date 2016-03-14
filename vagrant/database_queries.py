@@ -196,7 +196,61 @@ def checkInPuppies():
     """Scenarios to check current_occupancy and maximum_capcity of shelters"""
 
     print "Check in a dog. Should be checked in the next available shelter."
-    checkInPuppy("Rexford", "male", c
+    checkInPuppy("Rexford", "male", createRandomAge(), createRandomWeight(), 2)
+    print "\n"
+
+    print "Check in a dog in an already full facility"
+    checkInPuppy("Test1", "male", createRandomAge(), createRandomWeight(), 2)
+    print session.query(exists().where(Puppy.name == "Test1")).scalar()  # False
+    print "\n"
+
+
+def adoptPuppy(puppy_id, adopters_list):
+    """Adopt a puppy based on id. Remove it from shelter occupancy"""
+    puppy = session.query(Puppy).get(puppy_id)
+
+    if(len(puppy.adopters) > 0):
+        print "%s is already adopted!" % puppy.name
+        return puppy
+
+    for a_id in adopters_list:
+        adopter = session.query(Adopter).get(a_id)
+        puppy.adopters.append(adopter)
+
+    shelter = session.query(Shelter).get(puppy.shelter_id)
+    shelter.current_occupancy = shelter.current_occupancy - 1
+
+    session.commit()
+
+    return puppy
+
+
+def checkAdoptPuppies():
+    id_1 = 8
+
+    # Check shelter occupancies before:
+    stmt_1 = session.query(Puppy.shelter_id.label('s_id')).\
+        filter(Puppy.id == id_1).\
+        subquery()
+    shelter_1 = session.query(Shelter).\
+        filter(Shelter.id == stmt_1.c.s_id).one()
+
+    print("%s has an current occupancy of %s" % (
+        shelter_1.name, shelter_1.current_occupancy))
+
+    # Have Mr. and Mrs. Smith adopt another puppy
+    puppy_1 = adoptPuppy(id_1, [1, 2])
+
+    # Check shelter occupancies afterwards:
+    print "Get Adopters of puppy_1:"
+
+    for a in puppy_1.adopters:
+        print(a.first_name, a.last_name)
+
+    print "\n"
+
+    print("After %s's adoption, %s has an current occupancy of %s" % (
+        puppy_1.name, shelter_1.name, shelter_1.current_occupancy))
 
 
 def executeQueries():
@@ -206,6 +260,7 @@ def executeQueries():
     # groupByShelter()
     # getPuppyAndProfile()
     # setupManyToMany()
-    checkInPuppies()
+    # checkInPuppies()
+    checkAdoptPuppies()
 
 executeQueries()
