@@ -21,7 +21,9 @@ Here's what you need to do to view this project:
 2. Within Terminal (Mac), navigate to the vagrant folder and launch the Vagrant VM by running the command `vagrant up`.
 3. SSH into the running Vagrant machine `vagrant ssh`. 
 4. Execute `cd /vagrant` to change directory.
-5. Run `python database_setup.py`, then `python puppypopulator.py` and `python database_queries.py` to setup the database, populate it and run the related queries.
+5. Run `python database_setup.py` to create database.
+6. Run `python puppypopulator.py` to populate database.
+7. Finally, run `python database_queries.py` to run the related queries. Be sure to comment and uncomment methods as needed.
 
 
 ### What's included
