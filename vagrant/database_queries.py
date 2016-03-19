@@ -173,7 +173,7 @@ def checkInPuppy(puppy_name, puppy_gender, puppy_dob, puppy_weight, shelter_id):
 
     new_puppy = Puppy(
         name=puppy_name, gender=puppy_gender, dateOfBirth=puppy_dob,
-        shelter_id=shelter_id, weight=puppy_weight)
+        shelter_id=shelter.id, weight=puppy_weight)
     session.add(new_puppy)
     session.commit()
 
@@ -188,7 +188,6 @@ def checkInPuppy(puppy_name, puppy_gender, puppy_dob, puppy_weight, shelter_id):
     session.add(new_profile)
     session.commit()
 
-    shelter = session.query(Shelter).get(shelter_id)
     print(new_puppy.name + " has been placed in " + shelter.name)
 
 
@@ -260,7 +259,7 @@ def executeQueries():
     # groupByShelter()
     # getPuppyAndProfile()
     # setupManyToMany()
-    # checkInPuppies()
-    checkAdoptPuppies()
+    checkInPuppies()
+    # checkAdoptPuppies()
 
 executeQueries()
